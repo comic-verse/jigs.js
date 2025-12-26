@@ -37,7 +37,7 @@ body {
 .ui-widget {
 	margin-bottom: 10px;
 }
-#btn-tokenize, #btn-xml-out, #btn-json-out, #btn-restart {
+#btn-tokenize, #btn-xml-out, #btn-json-out, #btn-restart, #btn-stats, #stats-bin {
 	display:none;
 }
 
@@ -180,4 +180,74 @@ body {
 
 #input-json, #input-plain {
 	display:none;
+}
+
+#stats-bin {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.8);
+}
+
+#stats-top {
+	background: white;
+	max-width: 1000px;
+	border-top-left-radius: 20px;
+	border-top-right-radius: 20px;
+	text-align:left;
+	position:relative;
+	margin: 0 auto;
+	margin-top: 30px;
+	height: 50px;
+}
+
+#stats-bottom {
+	background: white;
+	max-width: 1000px;
+	border-bottom-left-radius: 20px;
+	border-bottom-right-radius: 20px;
+	position:relative;
+	margin: 0 auto;
+	height: 50px;
+}
+
+#stats-inner {
+	background: white;
+	max-width: 1000px;
+	min-height: 300px;
+	text-align:left;
+	position:relative;
+	margin: 0 auto;
+	max-height: 80vh;
+	overflow-y: scroll;
+}
+
+#btn-closer {
+	font-size: 30px;
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	cursor:pointer;
+}
+#btn-closer:hover {
+	opacity: 0.8;
+	z-index: 999;
+}
+
+#stats-content {
+	padding: 0px 20px 0px 20px;
+	position: relative;
+}
+
+.chart-bin {
+	margin-top: 30px;
+	max-height: 400px;
+}
+
+.stat-tab{
+	background: #EDEBEC;
+	padding: 10px 10px 10px 10px;
+	border-radius: 5px;
 }
