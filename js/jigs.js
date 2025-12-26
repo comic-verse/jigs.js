@@ -1,3 +1,14 @@
+function loadScript(src, callback) {
+  const script = document.createElement('script');
+  script.src = src;
+  script.onload = callback;
+  document.head.appendChild(script);
+}
+
+loadScript('https://code.highcharts.com/highcharts.js', function () {
+  loadScript('https://code.highcharts.com/modules/histogram-bellcurve.js');
+});
+
 const colors = {
     selection  : '#a6a6a6',
     joke       : "#9b59b6",
@@ -58,6 +69,7 @@ function startJigs(id, defaultModel=null){
 	addControlPanel(id);
 	addInputs(id, defaultModel);
     addTaggingInterface(id);
+	addStatsPanel();
 }
 
 function JqueryUIinit(){
@@ -82,6 +94,7 @@ function addControlPanel(id){
 	$('#control-panel').append('<button class="ui-button ui-widget ui-corner-all" id="btn-tokenize">Tokenize</button>');
 	//$('#control-panel').append('<button class="ui-button ui-widget ui-corner-all" id="btn-xml-out">Export XML</button>');
 	$('#control-panel').append('<button class="ui-button ui-widget ui-corner-all" id="btn-json-out">Export JSON</button>');
+	$('#control-panel').append('<button class="ui-button ui-widget ui-corner-all" id="btn-stats">Show stats</button>');
 	$('#control-panel').append('<button class="ui-button ui-widget ui-corner-all" id="btn-restart">New text</button>');
 }
 
@@ -103,6 +116,13 @@ function addTaggingInterface(id){
     $('#'+id).append('<table id="el-poem"></table>');
     $('#'+id).append('<div id="modal"></div>');
     $('#'+id).append('<div id="popup-over-screen"><div id="popup-over-screen-content"></div></div>');
+}
+
+function addStatsPanel(){
+	/*
+	Add panel with JOLI stats
+	*/
+	$('body').append('<div id="stats-bin"><div id="stats-top"><div id="btn-closer">×</div></div><div id="stats-inner"><div id="stats-content"></div></div><div id="stats-bottom"></div></div>');
 }
 
 function getModels(defaultModel){
@@ -274,6 +294,7 @@ function renderTokenizedText(tokens){
     $('#el-poem').append(poem);
     $('#btn-xml-out').show();
     $('#btn-json-out').show();
+    $('#btn-stats').show();
     $('#btn-restart').show();
     $('#el-poem').show();
 
@@ -1058,6 +1079,123 @@ function exportJSON(){
     URL.revokeObjectURL(url);
 }
 
+/* ==================== STATS ======================================= */
+
+function computeStats(){
+	/*
+	Compute stats on annotated text
+	*/
+	$('#stats-content').html(
+		'<table class="stat-tab"><tr><td>Number of JOLIs:</td><td>' + Object.keys(rireTags).length + '</td></tr>' +
+		'<tr><td>Number of tokens:</td><td>' + tokens.length + '</td></tr></table>'
+	);
+	$('#stats-content').append('<div id="chart1" class="chart-bin"></div>');
+	so_chart();
+	$('#stats-content').append('<div id="chart2" class="chart-bin"></div>');
+	type_chart('lm_type', 'chart2', 'LM types');
+	$('#stats-content').append('<div id="chart3" class="chart-bin"></div>');
+	type_chart('ta_label', 'chart3', 'Target type');
+	$('#stats-content').append('<div id="chart4" class="chart-bin"></div>');
+	type_chart('ns', 'chart4', 'NS type');
+	$('#stats-content').append('<div id="chart5" class="chart-bin"></div>');
+	length_chart();
+
+	console.log(rireTags)
+}
+
+function so_chart(){
+	/*
+	Build SO-chart
+	*/
+	cats = [ 
+		"so_actual_non", "so_normal_abnormal", "so_possible_impossible", "so_good_bad", "so_life_death", 
+      	"so_obscenity", "so_money", "so_high_low_stature", "so_human_non"
+	];
+	vals = Array(cats.length).fill(0)
+	for (var span in rireTags){
+		for (var i in cats){
+			if (rireTags[span][cats[i]] == 1){
+				vals[i] += 1;
+			}
+		}  
+	}
+	highcharts_col(vals, cats, 'chart1', 'SO types');
+}
+
+function type_chart(t, target, title){
+	/*
+	Build LM-chart, Target chart, 
+	*/
+	cats = availableTags[t];
+	vals = Array(cats.length).fill(0)
+	for (var span in rireTags){
+		for (lm of rireTags[span][t]){
+			var i = cats.indexOf(lm);
+			if (i === -1) {
+				cats.append(lm)
+				vals[lm.length-1] += 1
+			} else {
+				vals[i] += 1;
+			}
+		}
+	}
+	highcharts_col(vals, cats, target, title);
+}
+
+function length_chart(){
+	/*
+	Build histogram of JOLI lengths
+	*/
+	vals = [];
+	for (var span in rireTags){
+		var ids = span.split('_');
+		var length = parseInt(ids[1]) - parseInt(ids[0]);
+		vals.push(length);
+	}
+	highcharts_histo(vals, 'chart5', 'JOLI lengths');
+}
+
+function highcharts_col(vals, cats, target, title){
+	/*
+	General function to provide column chart
+	*/
+	Highcharts.chart(target, {
+		chart: {type: 'column'},
+		title: {text: title},
+		exporting: {enabled: true},
+		credits: {enabled: false},
+		xAxis: {
+			categories: cats,
+		},
+		yAxis: { min: 0, title: {text: ''}},
+		series: [
+			{
+				name: '',
+				data: vals,
+			},
+		]
+	});
+}
+
+function highcharts_histo(vals, target, title){
+	/*
+	General function to provide histogram
+	*/
+	Highcharts.chart(target, {
+		chart: {type: 'histogram'},
+		title: {text: title},
+		exporting: {enabled: true},
+		credits: {enabled: false},
+		yAxis: { min: 0, title: {text: ''}},
+		series: [
+			{
+				name: '',
+				data: vals,
+			},
+		]
+	});
+}
+
 
 /* ==================== BINDINGS ======================================= */
 
@@ -1131,6 +1269,16 @@ $( document ).ready(function() {
         );
     });    
 
+    $("body").on('click', '#btn-stats',  function() {
+        // Show stats
+		computeStats();
+        $('#stats-bin').show();
+    }); 	
+    $("body").on('click', '#btn-closer',  function() {
+        // Hide stats
+		$('#stats-content').html('');
+        $('#stats-bin').hide();
+    }); 	
 
 });
 
