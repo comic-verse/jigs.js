@@ -7,6 +7,8 @@ function loadScript(src, callback) {
 
 loadScript('https://code.highcharts.com/highcharts.js', function () {
   loadScript('https://code.highcharts.com/modules/histogram-bellcurve.js');
+  loadScript('https://code.highcharts.com/modules/exporting.js');
+  loadScript('https://code.highcharts.com/modules/export-data.js');
 });
 
 const colors = {
