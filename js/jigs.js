@@ -178,7 +178,21 @@ function tokenize(t){
 	/*
     Tokenize preprocessed input text by means of UDPipe API and pass it to parseTokenizedText()
 	*/
-	fetch(api.tokenizer + '&model=' + $('#p-model').find(":selected").text() + '&data=' + t)
+
+	const model = $('#p-model').find(":selected").text();
+
+	const body = new URLSearchParams({
+		model: model,
+		data: t
+	});
+
+	fetch(api.tokenizer, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: body.toString()
+	})
 	.then(response => {
 		if (!response.ok) {
 			console.log('UDPipe: Network response was not ok');
@@ -190,7 +204,7 @@ function tokenize(t){
 	})
 	.catch(error => {
 		console.error('UDPipe error:', error);
-	});	
+	});
 }
 
 function parseTokenizedText(data){
