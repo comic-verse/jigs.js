@@ -34,3 +34,6 @@ startJigs('jigs-bin', 'french-gsd');
 ```
 
 For the list of available models see [https://ufal.mff.cuni.cz/udpipe/2/models].
+
+- To save the annotated text into your computer hit the "Export JSON" button
+- To load the exported JSON back to JIGS interface hit the "Load JSON" button at the initial page
