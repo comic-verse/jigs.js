@@ -5,10 +5,10 @@ function loadScript(src, callback) {
   document.head.appendChild(script);
 }
 
-loadScript('https://code.highcharts.com/highcharts.js', function () {
-  loadScript('https://code.highcharts.com/modules/histogram-bellcurve.js');
-  loadScript('https://code.highcharts.com/modules/exporting.js');
-  loadScript('https://code.highcharts.com/modules/export-data.js');
+loadScript('http://versologie.cz/js/hc/highcharts.js', function () {
+  loadScript('http://versologie.cz/js/hc/modules/histogram-bellcurve.js');
+  loadScript('http://versologie.cz/js/hc/modules/exporting.js');
+  loadScript('http://versologie.cz/js/hc/modules/export-data.js');
 });
 
 const colors = {
